@@ -11,16 +11,16 @@ flowchart TD
   end
 
   subgraph Frontend[Frontend]
-    Static[Static Assets<br/>(index.html, JS, CSS, PNG)]
+    Static[Static Assets<br/>index.html, JS, CSS, PNG]
   end
 
   subgraph Backend[Backend]
-    API[FastAPI (Render Web Service)<br/>Endpoints: /, /health, /chat, /tts<br/>CORS: lumatalk-1.onrender.com, localhost]
-    OpenAI[(OpenAI APIs<br/>Chat Completions<br/>TTS gpt-4o-mini-tts)]
+    API[FastAPI - Render Web Service<br/>Endpoints: /, /health, /chat, /tts<br/>CORS: lumatalk-1.onrender.com, localhost]
+    OpenAI[OpenAI APIs<br/>Chat Completions<br/>TTS gpt-4o-mini-tts]
   end
 
   subgraph External[External SDK]
-    Kakao[Kakao Maps SDK (client-side)]
+    Kakao[Kakao Maps SDK client-side]
   end
 
   UI -->|GET static| Static
