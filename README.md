@@ -7,16 +7,16 @@
 ```mermaid
 flowchart TD
   subgraph Client[User Device]
-    UI[Mobile Web UI\nReact + Vite\nRender Static Site]
+    UI[Mobile Web UI<br/>React + Vite<br/>Render Static Site]
   end
 
   subgraph Frontend[Frontend]
-    Static[Static Assets\n(index.html, JS, CSS, PNG)]
+    Static[Static Assets<br/>(index.html, JS, CSS, PNG)]
   end
 
   subgraph Backend[Backend]
-    API[FastAPI (Render Web Service)\nEndpoints: /, /health, /chat, /tts\nCORS: lumatalk-1.onrender.com, localhost]
-    OpenAI[(OpenAI APIs\nChat Completions\nTTS gpt-4o-mini-tts)]
+    API[FastAPI (Render Web Service)<br/>Endpoints: /, /health, /chat, /tts<br/>CORS: lumatalk-1.onrender.com, localhost]
+    OpenAI[(OpenAI APIs<br/>Chat Completions<br/>TTS gpt-4o-mini-tts)]
   end
 
   subgraph External[External SDK]
