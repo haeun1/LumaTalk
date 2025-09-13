@@ -1,9 +1,15 @@
 import './App.css'
 import { useEffect, useState, useRef } from 'react'
 
-// Backend base URL: use env if provided, else default to current host:8000
+// Backend base URL strategy
+// 1) Use VITE_API_URL when provided (build-time)
+// 2) If running on Render Static Site domain, default to the deployed API URL
+// 3) Otherwise fallback to host:8000 (local dev)
 const API_BASE = (typeof window !== 'undefined')
-  ? (import.meta?.env?.VITE_API_URL || `http://${window.location.hostname}:8000`)
+  ? (
+      import.meta?.env?.VITE_API_URL
+        || (window.location.hostname.includes('onrender.com') ? 'https://lumatalk.onrender.com' : `http://${window.location.hostname}:8000`)
+    )
   : 'http://localhost:8000'
 
 export default function App() {
@@ -130,6 +136,10 @@ export default function App() {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ message: '하모, 먼저 인사해줘', sessionId: 'local' })
         })
+        if (!res.ok) {
+          setMessages((prev) => [...prev, { role: 'assistant', content: '(서버 응답이 없어요)' }])
+          return
+        }
         const data = await res.json()
         const content = data?.reply || '(응답이 없어요)'
         setMessages((prev) => [...prev, { role: 'assistant', content }])
