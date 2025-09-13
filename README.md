@@ -1,69 +1,68 @@
-# React + TypeScript + Vite
+# LumaTalk – Architecture & Diagrams
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+모바일 웹 프론트(React+Vite)와 FastAPI 백엔드(OpenAI Chat/TTS 프록시)로 구성된 서비스입니다.
 
-Currently, two official plugins are available:
+## System Architecture (Mermaid)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```mermaid
+flowchart TD
+  subgraph Client[User Device]
+    UI[Mobile Web UI\nReact + Vite\nRender Static Site]
+  end
 
-## Expanding the ESLint configuration
+  subgraph Frontend[Frontend]
+    Static[Static Assets\n(index.html, JS, CSS, PNG)]
+  end
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+  subgraph Backend[Backend]
+    API[FastAPI (Render Web Service)\nEndpoints: /, /health, /chat, /tts\nCORS: lumatalk-1.onrender.com, localhost]
+    OpenAI[(OpenAI APIs\nChat Completions\nTTS gpt-4o-mini-tts)]
+  end
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+  subgraph External[External SDK]
+    Kakao[Kakao Maps SDK (client-side)]
+  end
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+  UI -->|GET static| Static
+  UI -->|POST /chat| API
+  UI -->|POST /tts| API
+  API -->|Chat + TTS calls| OpenAI
+  UI -.-> Kakao
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Chat + TTS Sequence (Mermaid)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant F as Frontend (React)
+  participant B as Backend (FastAPI)
+  participant O as OpenAI
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+  U->>F: 입력("안녕")
+  F->>B: POST /chat {message, sessionId}
+  B->>O: Chat Completions (system + history + user)
+  O-->>B: reply text
+  B-->>F: { reply }
+  F->>U: 말풍선 표시
+  F->>B: POST /tts { text, voice }
+  B->>O: TTS (gpt-4o-mini-tts)
+  O-->>B: MP3 bytes
+  B-->>F: audio/mpeg
+  F->>U: 오디오 재생(헤더 아이콘 점멸)
 ```
+
+## Deployment
+- Frontend: Render Static Site
+  - Build: `npm ci && npm run build`
+  - Publish Dir: `dist`
+  - Env: `VITE_API_URL=https://lumatalk.onrender.com`
+- Backend: Render Web Service
+  - Root Dir: `backend`
+  - Build: `pip install -r requirements.txt`
+  - Start: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+  - Env: `OPENAI_API_KEY`, `OPENAI_MODEL=gpt-4o-mini`
+
+## Notes
+- Free 플랜 콜드스타트로 처음 요청이 느릴 수 있습니다.
+- 세션 히스토리는 메모리에 저장되므로 재시작/슬립 후 초기화됩니다.
