@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+**/node_modules/
+*.log
+
+# Vite build
+dist/
+.vite/
+
+# Env
+.env
+**/.env
+.env.local
+
+# Editor/OS
+.DS_Store
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.envrc
+
+# Misc
+*.pid
