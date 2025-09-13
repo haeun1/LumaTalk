@@ -56,6 +56,11 @@ async def health():
     return {"ok": True}
 
 
+@app.get("/")
+async def root():
+    return {"ok": True, "service": "LumaTalk API", "endpoints": ["/health", "/chat", "/tts"]}
+
+
 @app.post("/chat")
 async def chat(req: ChatRequest):
     user = req.message.strip()
